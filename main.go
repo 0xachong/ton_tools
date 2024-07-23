@@ -7,12 +7,15 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/xssnick/tonutils-go/liteclient"
+	"github.com/xssnick/tonutils-go/ton"
 	"github.com/xssnick/tonutils-go/ton/wallet"
 )
 
 func main() {
 	fmt.Print("请输入要生成助记词个数:")
-
+	client := liteclient.NewConnectionPool()
+	api := ton.NewAPIClient(client, ton.ProofCheckPolicyFast).WithRetry()
 	// 创建一个新的 bufio.Reader 读取标准输入
 	reader := bufio.NewReader(os.Stdin)
 
@@ -31,7 +34,8 @@ func main() {
 	}
 	for i := 0; i < num; i++ {
 		mnemonic := wallet.NewSeed()
-		fmt.Println(strings.Join(mnemonic, " "))
+		addr, _ := wallet.FromSeed(api, mnemonic, wallet.V4R2)
+		fmt.Println(strings.Join(mnemonic, " "), "     ",addr.WalletAddress().String())
 	}
 	fmt.Println("按任意键退出...")
 	// 创建一个新的 bufio.Reader 读取标准输入
